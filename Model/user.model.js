@@ -1,11 +1,10 @@
 const mongoose = require("mongoose");
 
-
-const userSchema = new mongoose.Schema({
-  _id: mongoose.Schema.Types.ObjectId,
-  channelName: {
-    Type: {
-      type: String,
+const userSchema = new mongoose.Schema(
+  {
+    _id: mongoose.Schema.Types.ObjectId,
+    channelName: {
+      type: String, 
       required: true,
     },
     email: {
@@ -21,24 +20,35 @@ const userSchema = new mongoose.Schema({
       type: String,
       required: true,
     },
-    logoUrl: {
-      type: String,
-      required: true,
-    },
+    images: [
+      {
+        public_id: {
+          type: String,
+          required: true,
+        },
+        url: {
+          type: String,
+          required: true,
+        },
+      },
+    ],
     logoId: {
       type: String,
       required: true,
     },
-    subscribers:{
-        type:Number,
-        default:0
+    subscribers: {
+      type: Number,
+      default: 0,
     },
-    subscribedChannels:{
+    subscribedChannels: [
+      {
         type: mongoose.Schema.Types.ObjectId,
-        ref:'User'
-    }
+        ref: "User",
+      },
+    ],
   },
-},{timestamps:true});
+  { timestamps: true }
+);
 
-const userModel = mongoose.model("User", userSchema)
+const userModel = mongoose.model("User", userSchema);
 module.exports = userModel;
