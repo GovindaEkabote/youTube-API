@@ -2,14 +2,13 @@ const express = require("express");
 const bcrypt = require("bcrypt");
 const User = require("../Model/user.model");
 const pLimit = require("p-limit");
-const jwt = require("jsonwebtoken");
 const mongoose = require("mongoose");
 const cloudinary = require("../config/cloudinary");
 const sentToken = require('../utils/sendTokens');
 const ErrorHandler = require("../utils/ErrorHandling");
 const router = express.Router();
 
-router.post("/signup", async (req, res) => {
+router.post("/signup", async (req, res,next) => {
   try {
     const limit = pLimit(2);
 
@@ -77,21 +76,19 @@ router.post("/signup", async (req, res) => {
   }
 });
 
-router.post("/login", async (req, res) => {
+router.post("/login", async (req, res,next) => {
   try {
     const { email, password } = req.body;
     if (!email || !password) {
-      return res
-        .status(500)
-        .json({ message: "Please Enter the Email and Password" });
-    }
+      return  next(new ErrorHandler("Please Enter Email and Password", 400));
+       }
     const login = await User.findOne({ email }).select("+password")
     if (!login) {
-      return res.status(500).json({ message: "Invalid Email and Password" });
+      return next(new ErrorHandler("Invalid Email and Password", 400));
     }
     const haspPassword = await bcrypt.compare(password, login.password);
     if (!haspPassword) {
-      return res.status(500).json({ message: "Invalid Email and Password" });
+      return next(new ErrorHandler("Invalid Email and Password", 400));
     }
    sentToken(login,200,res)
   } catch (error) {
