@@ -5,6 +5,8 @@ const pLimit = require("p-limit");
 const jwt = require("jsonwebtoken");
 const mongoose = require("mongoose");
 const cloudinary = require("../config/cloudinary");
+const sentToken = require('../utils/sendTokens');
+const ErrorHandler = require("../utils/ErrorHandling");
 const router = express.Router();
 
 router.post("/signup", async (req, res) => {
@@ -13,10 +15,7 @@ router.post("/signup", async (req, res) => {
 
     // Validate images array
     if (!req.body.images || !Array.isArray(req.body.images)) {
-      return res.status(400).json({
-        message: "Invalid images array",
-        success: false,
-      });
+      return next(new ErrorHandler("Invalid images array",400))
     }
 
     // Upload images to Cloudinary concurrently with limit
@@ -86,7 +85,7 @@ router.post("/login", async (req, res) => {
         .status(500)
         .json({ message: "Please Enter the Email and Password" });
     }
-    const login = await User.findOne({ email });
+    const login = await User.findOne({ email }).select("+password")
     if (!login) {
       return res.status(500).json({ message: "Invalid Email and Password" });
     }
@@ -94,27 +93,7 @@ router.post("/login", async (req, res) => {
     if (!haspPassword) {
       return res.status(500).json({ message: "Invalid Email and Password" });
     }
-    const token = jwt.sign(
-      {
-        userID: login._id,
-        channelName: login.channelName,
-        email: login.email,
-        phone: login.phone,
-        logoId: login.logoId,
-      },
-      process.env.JWT,
-      {
-        expiresIn: process.env.EXPIREIN,
-      }
-    );
-    res.status(200).json({
-      userID: login._id,
-      channelName: login.channelName,
-      email: login.email,
-      phone: login.phone,
-      logoId: login.logoId,
-      token,
-    });
+   sentToken(login,200,res)
   } catch (error) {
     console.log(error);
   }
