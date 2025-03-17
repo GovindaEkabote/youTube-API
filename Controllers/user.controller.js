@@ -55,3 +55,16 @@ exports.login = tryCatchError(async (req, res, next) => {
   }
   sendToken(user, 200, res);
 });
+
+exports.logout = tryCatchError(async (req, res, next) => {
+    res.cookie("token", null, {
+    expires: new Date(Date.now()),
+    secure: process.env.NODE_ENV === "production",
+    sameSite: "strict",
+    HttpOnly: true,
+  });
+  res.status(200).json({
+    success:true,
+    message:"Logout Successfully",
+  })
+});
