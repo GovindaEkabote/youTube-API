@@ -68,3 +68,15 @@ exports.logout = tryCatchError(async (req, res, next) => {
     message:"Logout Successfully",
   })
 });
+
+exports.userDetails = tryCatchError(async(req,res,next) =>{
+  const user = await User.findById(req.user.id);
+  if(!user){
+    return next(new ErrroHandler("User Not Found",404))
+  }
+  res.status(200).json({
+    success:true,
+    user
+  })
+})
+
