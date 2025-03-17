@@ -1,7 +1,7 @@
 // creating token and saving in cookies.
 const sentToken = async (user, statusCode, res) => {
     const jwtToken = user.getJWTToken();
-    const referenceToken =await user.getReferenceToken();
+   
   
     // Options for cookies
     const options = {
@@ -16,7 +16,7 @@ const sentToken = async (user, statusCode, res) => {
       success: true,
       user,
       jwtToken,
-      referenceToken,
+
     });
   };
   
