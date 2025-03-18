@@ -1,4 +1,4 @@
-const upload = require("../utils/multer");
+const upload = require("../utils/uploadVideo");
 
 const handleFileUpload = upload.fields([
   { name: "video", maxCount: 1 },

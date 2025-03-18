@@ -20,9 +20,3 @@ const storage = new CloudinaryStorage({
 const upload = multer({storage});
 module.exports = upload;
 
-/*
-// Delete old avatar if exists
-if (user.avatar.public_id) {
-  await cloudinary.uploader.destroy(user.avatar.public_id);
-}
-*/

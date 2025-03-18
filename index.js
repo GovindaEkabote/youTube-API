@@ -18,6 +18,10 @@ app.use("/uploads", express.static("public/uploads"));
 const User = require('./Routes/use.routes');
 app.use('/api/v1', User);
 
+const Video = require('./Routes/video.routes');
+app.use('/api/v1', Video);
+
+
 app.use(errorMiddleware);
 
 app.listen(PORT, () => {
