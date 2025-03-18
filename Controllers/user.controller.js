@@ -97,3 +97,44 @@ exports.updateUerPassword = tryCatchError(async (req, res, next) => {
   sendToken(user, 200, res);
 });
 
+exports.updateAvatar = tryCatchError(async (req, res, next) => {
+  const user = await User.findById(req.user.id);
+  
+  if (!user) {
+    return next(new ErrroHandler("User Not Found", 404));
+  }
+
+  if (!req.file) {
+    return next(new ErrroHandler("Please upload an image", 400));
+  }
+
+  // Delete the old avatar from Cloudinary if it exists
+  if (user.avatar && user.avatar.public_id) {
+    await cloudinary.uploader.destroy(user.avatar.public_id);
+  }
+
+  try {
+    // Upload new avatar to Cloudinary
+    const result = await cloudinary.uploader.upload(req.file.path, {
+      folder: "avatars",
+      width: 500,
+      crop: "scale",
+    });
+
+    // Update user avatar details
+    user.avatar = {
+      public_id: result.public_id,
+      url: result.secure_url,
+    };
+
+    // Save updated user details
+    await user.save();
+
+    // Send response with updated token
+    sendToken(user, 200, res);
+  } catch (error) {
+    return next(new ErrorHandler("Image upload failed. Try again.", 500));
+  }
+});
+
+
