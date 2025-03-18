@@ -7,6 +7,7 @@ const {
   userDetails,
   updateUerPassword,
   updateAvatar,
+  updateProfile,
 } = require("../Controllers/user.controller");
 const { IsAuthenticatedUser } = require("../Middleware/Auth");
 const router = express.Router();
@@ -18,7 +19,9 @@ router.route("/logout").post(logout);
 router.route("/user").get(IsAuthenticatedUser, userDetails);
 router.route("/updare-password").put(IsAuthenticatedUser, updateUerPassword);
 router
-  .route("/update-profile")
+  .route("/update-avatar")
   .put(upload.single("avatar"), IsAuthenticatedUser, updateAvatar);
+router.route("/update-profile").put(IsAuthenticatedUser, updateProfile);
+
 
 module.exports = router;

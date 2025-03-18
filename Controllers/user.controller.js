@@ -99,7 +99,7 @@ exports.updateUerPassword = tryCatchError(async (req, res, next) => {
 
 exports.updateAvatar = tryCatchError(async (req, res, next) => {
   const user = await User.findById(req.user.id);
-  
+
   if (!user) {
     return next(new ErrroHandler("User Not Found", 404));
   }
@@ -137,4 +137,11 @@ exports.updateAvatar = tryCatchError(async (req, res, next) => {
   }
 });
 
-
+exports.updateProfile = tryCatchError(async (req, res, next) => {
+  const { username, email } = req.body;
+  const user = await User.findById(req.user.id);
+  user.username = username || user.username;
+  user.email = email || user.email;
+  await user.save();
+  return sendToken(user, 200, res);  
+});
