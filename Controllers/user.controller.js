@@ -158,3 +158,9 @@ exports.deleteAccount = tryCatchError(async (req, res, next) => {
     message: "User delete Successfuly",
   });
 });
+
+
+
+/*
+1. Forgot Password - Using node mailer.
+*/
