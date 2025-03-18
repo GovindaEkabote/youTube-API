@@ -143,5 +143,18 @@ exports.updateProfile = tryCatchError(async (req, res, next) => {
   user.username = username || user.username;
   user.email = email || user.email;
   await user.save();
-  return sendToken(user, 200, res);  
+  return sendToken(user, 200, res);
+});
+
+exports.deleteAccount = tryCatchError(async (req, res, next) => {
+  const {id} = req.params;
+  const user = await User.findById(req.user.id);
+  if (!user) {
+    return next(new ErrroHandler("User not found", 400));
+  }
+  await User.deleteOne({ _id: id });
+  res.status(200).json({
+    success: true,
+    message: "User delete Successfuly",
+  });
 });
