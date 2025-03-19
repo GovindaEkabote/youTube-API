@@ -36,13 +36,25 @@ exports.videoUpload = tryCatchError(async (req, res, next) => {
 
 exports.myVideos = tryCatchError(async (req, res, next) => {
   const userId = req.user.id;
-  const videos = await Video.find({userId}).populate("userId", "username");
+  const videos = await Video.find({ userId }).populate("userId", "username");
   res.status(200).json({
     success: true,
-    videos: videos.map(video => ({
+    videos: videos.map((video) => ({
       title: video.title,
       videoUrl: video.videoUrl,
       username: video.userId.username,
     })),
+  });
+});
+
+exports.deleteVideo = tryCatchError(async (req, res, next) => {
+  const videoId = req.params.id;
+
+  const deleteResult  = await Video.deleteOne({ _id: videoId });
+  if (deleteResult.deletedCount === 0) {
+    return next(new ErrorHandler("Video Not found", 404));
+  }
+  res.status(200).json({
+    message: "Video deleted successfully",
   });
 });
