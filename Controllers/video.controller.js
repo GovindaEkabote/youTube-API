@@ -9,9 +9,9 @@ exports.videoUpload = tryCatchError(async (req, res, next) => {
     }
 
     // Correct file path
-    const videoUrl = `/public/uploads/videos/${req.files.video[0].filename}`;
+    const videoUrl = `D:/03_Projects/youtube-api/public/uploads/videos/${req.files.video[0].filename}`;
     const thumbnailUrl = req.files.thumbnail
-      ? `/public/uploads/thumbnails/${req.files.thumbnail[0].filename}`
+      ? `D:/03_Projects/youtube-api/public/uploads/thumbnails/${req.files.thumbnail[0].filename}`
       : ""; // Optional thumbnail
 
     const newVideoUpload = new Video({
@@ -24,8 +24,25 @@ exports.videoUpload = tryCatchError(async (req, res, next) => {
     });
 
     await newVideoUpload.save();
-    res.status(200).json({ message: "Video Uploaded Successfully", newVideoUpload });
+    await newVideoUpload.populate("userId", "username");
+
+    res
+      .status(200)
+      .json({ message: "Video Uploaded Successfully", newVideoUpload });
   } catch (error) {
     res.status(500).json({ message: "Internal Server Error" });
   }
+});
+
+exports.myVideos = tryCatchError(async (req, res, next) => {
+  const userId = req.user.id;
+  const videos = await Video.find({userId}).populate("userId", "username");
+  res.status(200).json({
+    success: true,
+    videos: videos.map(video => ({
+      title: video.title,
+      videoUrl: video.videoUrl,
+      username: video.userId.username,
+    })),
+  });
 });
