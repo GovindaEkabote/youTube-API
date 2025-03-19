@@ -1,6 +1,8 @@
 const ErrorHandler = require("../utils/ErrorHandling");
 const tryCatchError = require("../Middleware/tryCatch");
 const Video = require("../Model/video.model");
+const fs = require("fs");
+const path = require("path");
 
 exports.videoUpload = tryCatchError(async (req, res, next) => {
   try {
@@ -48,13 +50,38 @@ exports.myVideos = tryCatchError(async (req, res, next) => {
 });
 
 exports.deleteVideo = tryCatchError(async (req, res, next) => {
-  const videoId = req.params.id;
-
-  const deleteResult  = await Video.deleteOne({ _id: videoId });
-  if (deleteResult.deletedCount === 0) {
-    return next(new ErrorHandler("Video Not found", 404));
+  const videoId = req.params.id;  
+  // Find the video in the database
+  const video = await Video.findById({_id: videoId});
+  if (!video) {
+    return next(new ErrorHandler("Video Not Found", 404));
   }
+
+  // Extract video file path
+  const videoPath = path.resolve(video.videoUrl); // Convert to absolute path
+  const thumbnailPath =path.resolve(video.thumbnailUrl) ;
+  // Delete video from database
+  const deleteResult = await Video.deleteOne({ _id: videoId });
+
+  if (deleteResult.deletedCount === 0) {
+    return next(new ErrorHandler("Failed to delete video from database", 500));
+  }
+
+  // Remove video file from local storage
+  const deleteFiles = (filePath) =>{
+    if(filePath && fs.existsSync(filePath)) {
+      fs.unlink(filePath, (err) =>{
+        if(err){
+          console.log(err);
+        }
+      })
+    }
+  }
+  deleteFiles(videoPath);
+  if (thumbnailPath) deleteFiles(thumbnailPath);
+
   res.status(200).json({
-    message: "Video deleted successfully",
+    success: true,
+    message: "Video deleted successfully from database and storage",
   });
 });
