@@ -6,6 +6,7 @@ const {
   videoUpload,
   myVideos,
   deleteVideo,
+  updateVideo,
 } = require("../Controllers/video.controller");
 
 const router = express.Router();
@@ -17,5 +18,6 @@ router
 
 router.route("/videos").get(IsAuthenticatedUser, myVideos);
 router.route("/video/:id").delete(IsAuthenticatedUser, deleteVideo);
+router.route("/update-video/:id").put(IsAuthenticatedUser, upload.single("thumbnail"), updateVideo);
 
 module.exports = router;

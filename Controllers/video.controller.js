@@ -49,17 +49,75 @@ exports.myVideos = tryCatchError(async (req, res, next) => {
   });
 });
 
+exports.updateVideo = tryCatchError(async (req, res, next) => {
+  const { id } = req.params;
+  const { title, description } = req.body;
+
+  // Find existing video
+  const video = await Video.findById(id);
+  if (!video) {
+    return next(new ErrorHandler("Video Not Found", 404));
+  }
+
+  let uploadNewThumbnailUrl = video.thumbnailUrl; // Default: keep old thumbnail
+
+  // Handle new thumbnail upload
+  if (req.files?.thumbnail?.[0]) {
+    try {
+      // Remove old thumbnail if exists
+      if (video.thumbnailUrl) {
+        const oldThumbnailPath = path.resolve(video.thumbnailUrl);
+        await fs.promises.unlink(oldThumbnailPath).catch((err) => {
+          if (err.code !== "ENOENT") {
+            console.error("Error deleting old thumbnail:", err);
+          }
+        });
+      }
+
+      // Save new thumbnail
+      uploadNewThumbnailUrl = path.join(
+        __dirname,
+        "..",
+        "public",
+        "uploads",
+        "thumbnails",
+        req.files.thumbnail[0].filename
+      );
+    } catch (error) {
+      console.error("Thumbnail update error:", error);
+      return next(new ErrorHandler("Failed to update thumbnail", 500));
+    }
+  }
+
+  // Update video details
+  const updatedVideo = await Video.findByIdAndUpdate(
+    id,
+    {
+      title: title ?? video.title, // Keep old title if not provided
+      description: description ?? video.description, // Keep old description if not provided
+      thumbnailUrl: uploadNewThumbnailUrl,
+    },
+    { new: true, runValidators: true }
+  );
+
+  res.status(200).json({
+    success: true,
+    message: "Video updated successfully",
+    video: updatedVideo,
+  });
+});
+
 exports.deleteVideo = tryCatchError(async (req, res, next) => {
-  const videoId = req.params.id;  
+  const videoId = req.params.id;
   // Find the video in the database
-  const video = await Video.findById({_id: videoId});
+  const video = await Video.findById({ _id: videoId });
   if (!video) {
     return next(new ErrorHandler("Video Not Found", 404));
   }
 
   // Extract video file path
   const videoPath = path.resolve(video.videoUrl); // Convert to absolute path
-  const thumbnailPath =path.resolve(video.thumbnailUrl) ;
+  const thumbnailPath = path.resolve(video.thumbnailUrl);
   // Delete video from database
   const deleteResult = await Video.deleteOne({ _id: videoId });
 
@@ -68,15 +126,15 @@ exports.deleteVideo = tryCatchError(async (req, res, next) => {
   }
 
   // Remove video file from local storage
-  const deleteFiles = (filePath) =>{
-    if(filePath && fs.existsSync(filePath)) {
-      fs.unlink(filePath, (err) =>{
-        if(err){
+  const deleteFiles = (filePath) => {
+    if (filePath && fs.existsSync(filePath)) {
+      fs.unlink(filePath, (err) => {
+        if (err) {
           console.log(err);
         }
-      })
+      });
     }
-  }
+  };
   deleteFiles(videoPath);
   if (thumbnailPath) deleteFiles(thumbnailPath);
 

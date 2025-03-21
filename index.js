@@ -12,7 +12,9 @@ connectDB();
 app.use(cookieParser());
 app.use(bodyParser.json());
 app.use(express.json());
+
 app.use(express.urlencoded({ extended: true }));
+
 app.use("/uploads", express.static("public/uploads"));
 
 const User = require('./Routes/use.routes');
