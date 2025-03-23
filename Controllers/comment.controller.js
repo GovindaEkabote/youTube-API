@@ -1,8 +1,9 @@
 const ErrorHandler = require("../utils/ErrorHandling");
 const tryCatchError = require("../Middleware/tryCatch");
-const Video = require("../Model/video.model");
-const User = require("../Model/user.model");
 const Comment = require("../Model/comment.model");
+const mongoose = require("mongoose");
+
+
 
 exports.createComment = tryCatchError(async (req, res, next) => {
   const { videoId, content } = req.body;
@@ -36,7 +37,6 @@ exports.getAllComments = tryCatchError(async (req, res, next) => {
   });
 });
 
-
 exports.reply = tryCatchError(async(req,res,next) =>{
     const {userId,content} = req.body;
     const {commentId} = req.params;
@@ -66,6 +66,7 @@ exports.reply = tryCatchError(async(req,res,next) =>{
 
 exports.repliesComment = tryCatchError(async (req, res, next) => {
     const { commentId } = req.params;
+  
     const reply = await Comment.find({ replayId: commentId }).populate(
       "userId",
       "username"
@@ -81,3 +82,47 @@ exports.repliesComment = tryCatchError(async (req, res, next) => {
     });
   });
   
+exports.editComment = tryCatchError(async(req,res,next) =>{
+  const {content} = req.body;
+  const {id} = req.params;
+  const editComment = await Comment.findById(id);
+ 
+  if(editComment.userId.toString() !== req.user.id){
+    return next(new ErrorHandler("Unauthorized: You can only edit your own comment", 403));
+  }
+
+  editComment.content = content || editComment.content;
+  await editComment.save();
+
+  res.status(200).json({
+    success: true,
+    message: "Comment updated successfully",
+    comment: editComment,
+  });
+})
+
+exports.editReplies = tryCatchError(async(req,res,next) =>{
+  const {content} = req.body;
+  const {replyId } = req.params;
+  // 🔍 Validate ID format
+  if (!mongoose.Types.ObjectId.isValid(replyId)) {
+    return next(new ErrorHandler("Invalid reply ID", 400));
+  }
+
+  const reply  = await Comment.findById(replyId);
+
+  if(reply.userId.toString() !== req.user.id){
+    return next(new ErrorHandler("Unauthorized: You can only edit your own comment", 403));
+  }
+
+  reply.content = content || reply .content;
+  await reply.save();
+
+  res.status(200).json({
+    success: true,
+    message: "Comment updated successfully",
+    comment: reply,
+  });
+})
+
+
