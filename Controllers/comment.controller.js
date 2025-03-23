@@ -18,18 +18,49 @@ exports.createComment = tryCatchError(async (req, res, next) => {
   });
 
   await newComment.save();
-  res.status(200).json({message:"Comment added successfully",newComment})
+  res.status(200).json({ message: "Comment added successfully", newComment });
+});
+
+exports.getAllComments = tryCatchError(async (req, res, next) => {
+  const videoId = req.params.videoId;
+  const comments = await Comment.find({ videoId }).populate(
+    "userId",
+    "username"
+  );
+  res.status(200).json({
+    success: true,
+    comments: comments.map((comment) => ({
+      username: comment.userId.username,
+      content: comment.content,
+    })),
+  });
 });
 
 
-exports.getAllComments = tryCatchError(async(req,res,next) =>{
-    const videoId = req.params.videoId;
-    const comments = await Comment.find({videoId}).populate('userId','username');
-    res.status(200).json({
-        success:true,
-        comments : comments.map((comment) =>({
-            username:comment.userId.username,
-            content:comment.content
-        }))
+exports.reply = tryCatchError(async(req,res,next) =>{
+    const {userId,content} = req.body;
+    const {commentId} = req.params;
+
+    if(!userId || !content){
+        return next(new ErrorHandler("User ID and content are required", 400));
+    }
+
+    const parentComment = await Comment.findById(commentId);
+    if(!parentComment){
+        return next(new ErrorHandler("Parent comment not found", 404));
+    }
+    const replayComment = new Comment({
+        userId,
+        videoId:parentComment.videoId,
+        content,
+        replayId:commentId,
     })
+    await replayComment.save();
+
+    res.status(200).json({
+      success: true,
+      message: "Reply added successfully",
+      reply: replayComment,
+    });
 })
+
