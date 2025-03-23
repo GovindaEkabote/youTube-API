@@ -64,3 +64,20 @@ exports.reply = tryCatchError(async(req,res,next) =>{
     });
 })
 
+exports.repliesComment = tryCatchError(async (req, res, next) => {
+    const { commentId } = req.params;
+    const reply = await Comment.find({ replayId: commentId }).populate(
+      "userId",
+      "username"
+    );
+    res.status(200).json({
+      success: true,
+      reply: reply.map((reply) => ({
+        id: reply.id,
+        username: reply.userId.username,
+        content: reply.content,
+        createdAt: reply.createdAt,
+      })),
+    });
+  });
+  
