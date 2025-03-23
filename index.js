@@ -23,6 +23,9 @@ app.use('/api/v1', User);
 const Video = require('./Routes/video.routes');
 app.use('/api/v1', Video);
 
+const comment = require('./Routes/comment.routes');
+app.use('/api/v1',comment)
+
 
 app.use(errorMiddleware);
 
