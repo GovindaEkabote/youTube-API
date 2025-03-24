@@ -26,6 +26,8 @@ app.use('/api/v1', Video);
 const comment = require('./Routes/comment.routes');
 app.use('/api/v1',comment)
 
+const subscribe = require('./Routes/subscribe.routes');
+app.use('/api/v1',subscribe)
 
 app.use(errorMiddleware);
 
