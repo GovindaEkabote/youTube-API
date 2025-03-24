@@ -148,5 +148,5 @@ exports.deleteVideo = tryCatchError(async (req, res, next) => {
 1. Search Video 
 2. Sort Video Old and latest
 3. get Video by it's ID
-
+4. upload video for Premium members only
 */
