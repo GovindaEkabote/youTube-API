@@ -7,6 +7,7 @@ const {
   reply,
   editComment,
   editReplies,
+  deleteComment,
 } = require("../Controllers/comment.controller");
 const router = express.Router();
 
@@ -19,6 +20,8 @@ router
 router.route("/comment/:commentId/reply").post(IsAuthenticatedUser, reply);
 router.route("/edit/:id").put(IsAuthenticatedUser, editComment);
 router.route("/edit-reply/:replyId").put(IsAuthenticatedUser, editReplies);
+router.route("/delete-comment/:commentId").delete(IsAuthenticatedUser, deleteComment);
+
 
 
 module.exports = router;

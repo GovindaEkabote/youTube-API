@@ -125,4 +125,34 @@ exports.editReplies = tryCatchError(async(req,res,next) =>{
   });
 })
 
+exports.deleteComment = tryCatchError(async (req, res, next) => {
+  const { commentId } = req.params;
+
+  // 🔍 Validate ID format
+  if (!mongoose.Types.ObjectId.isValid(commentId)) {
+    return next(new ErrorHandler("Invalid comment ID", 400));
+  }
+
+  // 🔍 Find the comment
+  const comment = await Comment.findById(commentId);
+  if (!comment) {
+    return next(new ErrorHandler("Comment not found", 404));
+  }
+
+  // 🚀 Ensure only the owner can delete
+  if (comment.userId.toString() !== req.user.id) {
+    return next(new ErrorHandler("Unauthorized: You can only delete your own comment", 403));
+  }
+
+  // 🗑️ Delete the comment
+  await Comment.deleteOne({ _id: commentId });
+
+  // 🗑️ Delete all replies linked to this comment
+  await Comment.deleteMany({ replayId: commentId });
+
+  res.status(200).json({
+    success: true,
+    message: "Comment and its replies deleted successfully",
+  });
+});
 
