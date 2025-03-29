@@ -26,3 +26,19 @@ exports.scbscribeChannel = tryCatchError(async (req, res, next) => {
     subscribe
   })
 });
+
+exports.unSubscribe = tryCatchError(async(req,res,next) =>{
+  const {channelId} = req.params;
+  const subscription = await Subscription.findOneAndDelete({
+    userId:req.user.id,
+    channelId: channelId,
+  })
+  if(!subscription){
+    return next(new ErrroHandler("You are not subscribed to this channel", 400));
+  }
+  res.status(200).json({
+    success:true,
+    message:"Unsubscribed successfully!",
+  })
+})
+
