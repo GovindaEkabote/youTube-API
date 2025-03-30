@@ -42,3 +42,18 @@ exports.unSubscribe = tryCatchError(async(req,res,next) =>{
   })
 })
 
+exports.allSubscribeChannel = tryCatchError(async(req,res,next) =>{
+  const userId = req.user.id;
+  if(!userId){
+    return next(new ErrroHandler("User Id is required",400));
+  }
+  const mySubscribeChannel = await Subscription.find({userId})
+  if(!mySubscribeChannel)
+  {
+    return next(new ErrroHandler("No subscribed channels found",404))
+  }
+  res.status(200).json({
+    success:true,
+    mySubscribeChannel,
+  })
+})
