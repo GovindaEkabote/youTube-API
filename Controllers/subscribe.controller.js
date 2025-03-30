@@ -57,3 +57,25 @@ exports.allSubscribeChannel = tryCatchError(async(req,res,next) =>{
     mySubscribeChannel,
   })
 })
+
+exports.getchannelbyId = tryCatchError(async(req,res,next) =>{
+  const userId = req.user.id;
+
+  if(!userId){
+    return next(new ErrroHandler("User Id is required",400));
+  }
+
+  const {channelId} = req.params;
+  if (!channelId) {
+    return next(new ErrorHandler("Channel ID is required", 400));
+  }
+
+  const singleChannel = await Subscription.findOne({ channelId,userId})
+  if(!singleChannel){
+    return next(new ErrroHandler("You are not subscribed to this channel", 400));
+  }
+  res.status(200).json({
+    success:true,
+    singleChannel,
+  })
+})
