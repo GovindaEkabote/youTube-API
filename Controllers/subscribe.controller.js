@@ -67,7 +67,7 @@ exports.getchannelbyId = tryCatchError(async(req,res,next) =>{
 
   const {channelId} = req.params;
   if (!channelId) {
-    return next(new ErrorHandler("Channel ID is required", 400));
+    return next(new ErrroHandler("Channel ID is required", 400));
   }
 
   const singleChannel = await Subscription.findOne({ channelId,userId})
@@ -79,3 +79,17 @@ exports.getchannelbyId = tryCatchError(async(req,res,next) =>{
     singleChannel,
   })
 })
+
+exports.getSubscriberCount = tryCatchError(async(req,res,next) =>{
+  const {channelId} = req.params;
+  
+  if (!channelId) {
+    return next(new ErrroHandler("Channel ID is required", 400));
+  }
+  const count = await Subscription.countDocuments({channelId});
+  res.status(200).json({
+    success:true,
+    totalSubscribers: count,
+  })
+})
+

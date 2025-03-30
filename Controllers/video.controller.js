@@ -153,4 +153,5 @@ exports.deleteVideo = tryCatchError(async (req, res, next) => {
 3. get Video by it's ID
 4. upload video for Premium members only
 5. get single video 
+6. display all videos
 */
