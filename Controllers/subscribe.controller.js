@@ -47,7 +47,9 @@ exports.allSubscribeChannel = tryCatchError(async(req,res,next) =>{
   if(!userId){
     return next(new ErrroHandler("User Id is required",400));
   }
-  const mySubscribeChannel = await Subscription.find({userId})
+  const mySubscribeChannel = await Subscription.find({userId}).select("createdAt updatedAt").populate('channelId', 'username email profilePic') // Adjust fields as needed
+  .lean();
+  
   if(!mySubscribeChannel)
   {
     return next(new ErrroHandler("No subscribed channels found",404))
@@ -93,3 +95,18 @@ exports.getSubscriberCount = tryCatchError(async(req,res,next) =>{
   })
 })
 
+exports.isSubscribed = tryCatchError(async (req, res, next) => {
+  const { channelId } = req.params;
+  const userId = req.user.id;
+
+  if (!channelId) {
+    return next(new ErrroHandler("Channel ID is required", 400));
+  }
+
+  const isSubscribed = await Subscription.exists({ userId, channelId });
+
+  res.status(200).json({
+    success: true,
+    subscribed: !!isSubscribed, // returns true or false
+  });
+});
