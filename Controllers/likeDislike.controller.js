@@ -110,7 +110,7 @@ exports.dislikeVideo = tryCatchError(async (req, res, next) => {
   }
   return res.status(200).json({
     success: true,
-    message: "Video liked successfully",
+    message: "Video disliked successfully",
     likeCount: video.dislikeCount,
   });
 
@@ -165,6 +165,60 @@ exports.likeComment = tryCatchError(async (req, res, next) => {
     success: true,
     message: "comment liked successfully",
     likeCount: comment.likeCount,
+  });
+
+});
+
+
+exports.dislikeComment = tryCatchError(async (req, res, next) => {
+  const { commentId } = req.body;
+  const comment = await Comment.findById(commentId);
+  console.log("comment");
+  if (!comment) {
+    return next(new ErrorHandler("comment Not Found", 404));
+  } 
+  
+  const existingLike = await LikeDislike.findOne({
+    userId:req.user.id,
+    commentId,
+  });
+  if(existingLike){
+    if(existingLike.like_dislike === 'dislike'){
+      await existingLike.deleteOne();
+      comment.dislikeCount = Math.max(0,comment.dislikeCount -1)
+      await comment.save();
+
+     return res.status(200).json({
+        success: true,
+        message: "comment undislike successfully",
+        dislikeCount: comment.dislikeCount,
+      });
+    }else{
+      existingLike.like_dislike = 'dislike'
+      await existingLike.save();
+      comment.dislikeCount += 1;
+      comment.likeCount = Math.max(0, comment.likeCount - 1);
+      await comment.save();
+     return res.status(200).json({
+        success: true,
+        message: "comment dislike to undislike successfully",
+        likeCount: comment.likeCount,
+        dislikeCount: comment.dislikeCount,
+      });
+    }
+  }else{
+    await LikeDislike.create({
+      userId:req.user.id,
+      commentId,
+      like_dislike:'dislike',
+    });
+    comment.dislikeCount  += 1;
+    await comment.save();
+  }
+  return res.status(200).json({
+    success: true,
+    message: "comment  disliked successfully",
+    likeCount: comment.dislikeCount,
   });
 
 });
