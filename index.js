@@ -29,6 +29,9 @@ app.use('/api/v1',comment)
 const subscribe = require('./Routes/subscribe.routes');
 app.use('/api/v1',subscribe)
 
+const like = require('./Routes/likeDislike.routes');
+app.use('/api/v1',like)
+
 app.use(errorMiddleware);
 
 app.listen(PORT, () => {

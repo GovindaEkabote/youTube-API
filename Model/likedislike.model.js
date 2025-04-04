@@ -17,7 +17,7 @@ const likeDislikeSchema = new mongoose.Schema({
     required: false,
   },
   like_dislike:{
-    type: Number,
+    type: String,
     enum: ['like', 'dislike'], 
     required:true
   },
