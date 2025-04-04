@@ -21,9 +21,17 @@ const commentSchema = new mongoose.Schema(
       ref: "Comment",
       default: null,
     },
+    likeCount: {
+      type: Number,
+      default: 0,
+    },
+    dislikeCount: {
+      type: Number,
+      default: 0,
+    },
   },
   { timestamps: true }
 );
 
-const Comment = mongoose.model("Comment", commentSchema)
+const Comment = mongoose.model("Comment", commentSchema);
 module.exports = Comment;

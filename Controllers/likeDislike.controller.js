@@ -2,6 +2,7 @@ const LikeDislike = require("../Model/likedislike.model");
 const ErrorHandler = require("../utils/ErrorHandling");
 const tryCatchError = require("../Middleware/tryCatch");
 const Video = require('../Model/video.model')
+const Comment = require('../Model/comment.model')
 const mongoose = require("mongoose");
 
 exports.likeVideo = tryCatchError(async (req, res, next) => {
@@ -111,6 +112,59 @@ exports.dislikeVideo = tryCatchError(async (req, res, next) => {
     success: true,
     message: "Video liked successfully",
     likeCount: video.dislikeCount,
+  });
+
+});
+
+exports.likeComment = tryCatchError(async (req, res, next) => {
+  const { commentId } = req.body;
+  const comment = await Comment.findById(commentId);
+  console.log("comment");
+  if (!comment) {
+    return next(new ErrorHandler("comment Not Found", 404));
+  }
+
+  const existingLike = await LikeDislike.findOne({
+    userId:req.user.id,
+    commentId,
+  });
+  if(existingLike){
+    if(existingLike.like_dislike === 'like'){
+      await existingLike.deleteOne();
+      comment.likeCount = Math.max(0,comment.likeCount -1)
+      await comment.save();
+
+     return res.status(200).json({
+        success: true,
+        message: "Comment unliked successfully",
+        likeCount: comment.likeCount,
+      });
+    }else{
+      existingLike.like_dislike = 'like'
+      await existingLike.save();
+      comment.likeCount += 1;
+      comment.dislikeCount = Math.max(0,(comment.dislikeCount || 0)  -1);
+      await comment.save();
+     return res.status(200).json({
+        success: true,
+        message: "Comment dis to liked successfully",
+        likeCount: comment.likeCount,
+        dislikeCount: comment.dislikeCount,
+      });
+    }
+  }else{
+    await LikeDislike.create({
+      userId:req.user.id,
+      commentId,
+      like_dislike:'like',
+    });
+    comment.likeCount += 1;
+    await comment.save();
+  }
+  return res.status(200).json({
+    success: true,
+    message: "comment liked successfully",
+    likeCount: comment.likeCount,
   });
 
 });
