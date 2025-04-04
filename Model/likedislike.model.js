@@ -16,19 +16,11 @@ const likeDislikeSchema = new mongoose.Schema({
     ref: "Comment",
     required: false,
   },
-  likedislike:{
-    type: String,
+  like_dislike:{
+    type: Number,
     enum: ['like', 'dislike'], 
-    Required:true
+    required:true
   },
-  likes: {
-  type: Number,
-  default: 0,
-},
-dislikes: {
-  type: Number,
-  default: 0,
-},
 },{timestamps:true});
 
 const LikeDislike = mongoose.model("LikeDislike", likeDislikeSchema);
