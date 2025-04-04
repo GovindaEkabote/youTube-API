@@ -110,3 +110,7 @@ exports.isSubscribed = tryCatchError(async (req, res, next) => {
     subscribed: !!isSubscribed, // returns true or false
   });
 });
+
+
+
+

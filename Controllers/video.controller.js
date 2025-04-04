@@ -144,6 +144,16 @@ exports.deleteVideo = tryCatchError(async (req, res, next) => {
   });
 });
 
+exports.getAllYoutubersVideos = tryCatchError(async(req,res,next) =>{
+  const video = await Video.find();
+  if(!video){
+    return next(new ErrorHandler("No videos available", 404));
+  }
+  const randomeVideo = video.sort(() => Math.random() - 0.5);
+  res.status(200).json({
+    randomeVideo
+  })
+})
 
 
 
