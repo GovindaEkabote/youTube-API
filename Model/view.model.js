@@ -12,4 +12,4 @@ const viewSchema = new mongoose.Schema({
     }
 },{timestamps:true})
 
-module.exports = mongoose.model("Video", viewSchema);
+module.exports = mongoose.model("View", viewSchema);

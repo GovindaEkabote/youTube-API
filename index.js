@@ -32,6 +32,9 @@ app.use('/api/v1',subscribe)
 const like = require('./Routes/likeDislike.routes');
 app.use('/api/v1',like)
 
+const view = require('./Routes/view.routes');
+app.use('/api/v1',view)
+
 app.use(errorMiddleware);
 
 app.listen(PORT, () => {

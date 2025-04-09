@@ -3,21 +3,14 @@ const ErrorHandler = require("../utils/ErrorHandling");
 const tryCatchError = require("../Middleware/tryCatch");
 const Video = require('../Model/video.model')
 const Comment = require('../Model/comment.model')
-const mongoose = require("mongoose");
+
 
 exports.likeVideo = tryCatchError(async (req, res, next) => {
   const { videoId } = req.body;
   const video = await Video.findById(videoId);
-  console.log("video");
   if (!video) {
     return next(new ErrorHandler("video Not Found", 404));
   }
-
-  if (!mongoose.Types.ObjectId.isValid(videoId)) {
-    return next(new ErrorHandler("Invalid video ID format", 400));
-  }
-  
-  
   const existingLike = await LikeDislike.findOne({
     userId:req.user.id,
     videoId,
@@ -66,7 +59,6 @@ exports.likeVideo = tryCatchError(async (req, res, next) => {
 exports.dislikeVideo = tryCatchError(async (req, res, next) => {
   const { videoId } = req.body;
   const video = await Video.findById(videoId);
-  console.log("video");
   if (!video) {
     return next(new ErrorHandler("video Not Found", 404));
   } 
@@ -119,7 +111,6 @@ exports.dislikeVideo = tryCatchError(async (req, res, next) => {
 exports.likeComment = tryCatchError(async (req, res, next) => {
   const { commentId } = req.body;
   const comment = await Comment.findById(commentId);
-  console.log("comment");
   if (!comment) {
     return next(new ErrorHandler("comment Not Found", 404));
   }
@@ -169,11 +160,9 @@ exports.likeComment = tryCatchError(async (req, res, next) => {
 
 });
 
-
 exports.dislikeComment = tryCatchError(async (req, res, next) => {
   const { commentId } = req.body;
   const comment = await Comment.findById(commentId);
-  console.log("comment");
   if (!comment) {
     return next(new ErrorHandler("comment Not Found", 404));
   } 

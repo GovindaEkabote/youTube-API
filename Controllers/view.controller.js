@@ -4,15 +4,14 @@ const View = require('../Model/view.model')
 const Video = require('../Model/video.model')
 
 
-exports.view = tryCatchError(async(req,resizeBy,next) =>{
+exports.view = tryCatchError(async(req,res,next) =>{
     const {videoId} = req.body;
-    const userId = req.user.id;
-    const existingView = await View.findOne({ userId, videoId });
+    const existingView = await View.findOne({ userId : req.user.id, videoId });
     if (existingView) {
-      return res.status(200).json({ message: "View already recorded" });
+      return next(new ErrorHandler({message: "View already recorded" }));
     }
     const newView = await View.create({
-      userId: userId ,
+        userId : req.user.id,
       videoId,
     });
     await Video.findByIdAndUpdate(videoId, {
